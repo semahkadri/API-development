@@ -7,6 +7,8 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
 - `/upload-jobs`: Extract text from up to 20 PDF and 20 DOCX job description files.
 - `/upload-cv`: Extract qualifications, skills, and experience from a juriste's CV in PNG format.
 - `/view-data`: Retrieve all stored job descriptions and CVs from the database.
+- `/analyze-jobs`: Analyze job descriptions for word frequency and basic statistics.
+- `/view-analysis`: Serve the word frequency visualization.
 
 
 ## Prerequisites
@@ -50,12 +52,16 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
    - Jobs Form: `http://127.0.0.1:5000/upload-jobs-form`
    - CV Form: `http://127.0.0.1:5000/upload-cv-form`
    - View Data: `GET http://127.0.0.1:5000/view-data`
+   - Analyze Jobs: `GET http://127.0.0.1:5000/analyze-jobs`
+   - View Analysis: `GET http://127.0.0.1:5000/view-analysis`
 
 ## Usage
 
 - **Upload Jobs**: Use the form at `/upload-jobs-form` to upload up to 20 PDF and 20 DOCX job description files. Returns a JSON response with extracted text.
 - **Upload CV**: Use the form at `/upload-cv-form` to upload a PNG CV. Returns a JSON response with extracted qualifications, skills, and experience.
-- **View Data**: Send a GET request to /view-data to retrieve all stored jobs and CVs as JSON.
+- **View Data**: Send a GET request to `/view-data` to retrieve all stored jobs and CVs as JSON.
+- **Analyze Jobs**: Send a GET request to `/analyze-jobs` to analyze job descriptions, returning word frequencies and statistics (total documents, total words, unique words, average words per document) along with a visualization path.
+- **View Analysis**: Access `/view-analysis` to view the Plotly bar plot of word frequencies in your browser.
 
 ## Project Structure
 
@@ -67,8 +73,12 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
   - `pdf_extractor.py`: PDF text extraction.
   - `docx_extractor.py`: DOCX text extraction.
   - `cv_processor.py`: PNG OCR and CV parsing.
+  - `data_analyzer.py`: Text analysis and Plotly visualization generation.
+- `project/db/`: Database-related modules.
+  - `database.py`: Database operations for storing and retrieving data.
+  - `models.py`: SQLAlchemy models for job descriptions and CVs.
 - `project/static/`: HTML forms for job and CV uploads.
-- `notebooks/`: Jupyter notebooks for experiments (`PDF_DOCX_Extraction.ipynb`, `CV_Extraction.ipynb`, `PDF_DOCX_Extraction`).
+- `notebooks/`: Jupyter notebooks for experiments (`PDF_DOCX_Extraction.ipynb`, `CV_Extraction.ipynb`, `Database_Dump.ipynb`, `Data_Analysis.ipynb`).
 
 ## Requirements
 See `requirements.txt`. Key dependencies include:
@@ -77,6 +87,7 @@ See `requirements.txt`. Key dependencies include:
 - `psycopg2-binary` for PostgreSQL connectivity.
 - `pytesseract`, `pdfplumber`, `python-docx`, `nltk`, and `Pillow` for text extraction and processing.
 - `python-dotenv` for loading environment variables from `.env`.
+- `plotly` for data visualization.
 
 ## Notes
 
