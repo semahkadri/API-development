@@ -1,7 +1,6 @@
 # API Development
 
-API Development project for extracting text from job descriptions (PDF/DOCX) and CVs (PNG) using Flask.
-
+API Development project for extracting text from job descriptions (PDF/DOCX) and CVs (PNG) using Flask, with advanced analysis features including LLM semantic analysis.
 ## Features
 
 - `/upload-jobs`: Extract text from up to 20 PDF and 20 DOCX job description files.
@@ -9,6 +8,7 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
 - `/view-data`: Retrieve all stored job descriptions and CVs from the database.
 - `/analyze-jobs`: Analyze job descriptions for word frequency and basic statistics.
 - `/view-analysis`: Serve the word frequency visualization.
+- `/analyze-llm`: Perform semantic analysis on CV data using a pre-trained LLM (Google Gemini) to extract skills, experiences, and qualifications.
 
 
 ## Prerequisites
@@ -54,6 +54,7 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
    - View Data: `GET http://127.0.0.1:5000/view-data`
    - Analyze Jobs: `GET http://127.0.0.1:5000/analyze-jobs`
    - View Analysis: `GET http://127.0.0.1:5000/view-analysis`
+   - Analyze with LLM: `GET http://127.0.0.1:5000/analyze-llm`
 
 ## Usage
 
@@ -62,6 +63,7 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
 - **View Data**: Send a GET request to `/view-data` to retrieve all stored jobs and CVs as JSON.
 - **Analyze Jobs**: Send a GET request to `/analyze-jobs` to analyze job descriptions, returning word frequencies and statistics (total documents, total words, unique words, average words per document) along with a visualization path.
 - **View Analysis**: Access `/view-analysis` to view the Plotly bar plot of word frequencies in your browser.
+- **Analyze with LLM**: Send a GET request to `/analyze-llm` to perform semantic analysis on a specific CV using Google Gemini, returning extracted skills, experiences, and qualifications.
 
 ## Project Structure
 
@@ -74,11 +76,12 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
   - `docx_extractor.py`: DOCX text extraction.
   - `cv_processor.py`: PNG OCR and CV parsing.
   - `data_analyzer.py`: Text analysis and Plotly visualization generation.
+  - `llm_analyzer.py`: LLM-based semantic analysis using Google Gemini.
 - `project/db/`: Database-related modules.
   - `database.py`: Database operations for storing and retrieving data.
   - `models.py`: SQLAlchemy models for job descriptions and CVs.
 - `project/static/`: HTML forms for job and CV uploads.
-- `notebooks/`: Jupyter notebooks for experiments (`PDF_DOCX_Extraction.ipynb`, `CV_Extraction.ipynb`, `Database_Dump.ipynb`, `Data_Analysis.ipynb`).
+- `notebooks/`: Jupyter notebooks for experiments (`PDF_DOCX_Extraction.ipynb`, `CV_Extraction.ipynb`, `Database_Dump.ipynb`, `Data_Analysis.ipynb`, `LLM_Analysis.ipynb`).
 
 ## Requirements
 See `requirements.txt`. Key dependencies include:
@@ -88,9 +91,11 @@ See `requirements.txt`. Key dependencies include:
 - `pytesseract`, `pdfplumber`, `python-docx`, `nltk`, and `Pillow` for text extraction and processing.
 - `python-dotenv` for loading environment variables from `.env`.
 - `plotly` for data visualization.
+- `google-generativeai` for LLM analysis with Google Gemini.
 
 ## Notes
 
 - The `uploads/` folder is used temporarily during runtime and is excluded from the repository via `.gitignore`.
 - Ensure test files (PDF, DOCX, PNG) contain readable text for accurate extraction.
 - Sensitive data (e.g., database URI) is now stored in a `.env` file, making the codebase safe.
+- The LLM analysis requires a valid Google Gemini API key to be set in the `.env` file as `GEMINI_API_KEY`.

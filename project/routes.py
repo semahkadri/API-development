@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, Tuple, Optional
+from typing import Dict, Union, List, Optional, Tuple
 from flask import Blueprint, jsonify, current_app, request, send_file
 import os
 import uuid
@@ -8,6 +8,7 @@ from utils.pdf_extractor import extract_pdf_text
 from utils.docx_extractor import extract_docx_text
 from utils.cv_processor import extract_png_text, parse_cv_text
 from utils.data_analyzer import analyze_text, generate_word_frequency_plot
+from utils.llm_analyzer import analyze_with_llm
 from db.database import store_job_description, store_cv, get_all_jobs, get_all_cvs
 import logging
 
@@ -236,6 +237,40 @@ def analyze_jobs() -> Dict[str, Union[str, List[Tuple[str, int]], str, Dict[str,
         logger.error(f"Error analyzing job descriptions: {str(e)}")
         return jsonify({"error": f"Error analyzing job descriptions: {str(e)}"}), 500
 
+@api_bp.route("/analyze-llm", methods=["GET"])
+def analyze_llm() -> Dict[str, Union[str, Dict[str, List[str]]]]:
+    """Analyze a specific CV using a pre-trained LLM to extract skills, experiences, and qualifications.
+
+    Retrieves the text for a specific CV from the database based on filename defined in config.
+
+    Returns:
+        JSON response with the filename and extracted data or error message.
+    """
+    try:
+        filename = config.LLM_ANALYSIS_FILENAME
+        if not filename or filename == "LLM_ANALYSIS_FILENAME":
+            logger.error("No valid filename defined in LLM_ANALYSIS_FILENAME in .env")
+            return jsonify({"error": "No valid filename defined in LLM_ANALYSIS_FILENAME in .env"}), 400
+
+        cvs = get_all_cvs()
+        target_cv = next((cv for cv in cvs if cv["filename"] == filename), None)
+        if not target_cv:
+            logger.warning(f"No CV found with filename: {filename}")
+            return jsonify({"error": f"No CV found with filename: {filename}"}), 404
+
+        cv_text = [target_cv["text"]]
+        extracted_data = analyze_with_llm(cv_text)
+
+        logger.info(f"LLM analysis completed successfully for CV: {filename}")
+        return jsonify({
+            "message": "LLM analysis completed",
+            "filename": filename,
+            "extracted_data": extracted_data
+        })
+    except Exception as e:
+        logger.error(f"Error during LLM analysis: {str(e)}")
+        return jsonify({"error": f"Error during LLM analysis: {str(e)}"}), 500
+
 @api_bp.route("/view-analysis", methods=["GET"])
 def view_analysis() -> str:
     """Serve the word frequency visualization HTML file.
@@ -247,7 +282,7 @@ def view_analysis() -> str:
         plot_path = os.path.join(config.UPLOAD_FOLDER, "word_frequency.html")
         if not os.path.exists(plot_path):
             logger.error("Word frequency visualization file not found")
-            return jsonify({"error": "Visualization file not found. Run /analyze-jobs first."}), 404
+            return jsonify({"error": "Visualization file not found. Run /analyze-jobs first."}), 400
         
         logger.info("Serving word frequency visualization")
         return send_file(plot_path)
