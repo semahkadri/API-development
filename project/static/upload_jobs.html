@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Job Files</title>
+</head>
+<body>
+    <h2>Upload up to 20 PDF and 20 DOCX Job Files</h2>
+    <form action="http://127.0.0.1:5000/upload-jobs" method="post" enctype="multipart/form-data">
+        <input type="file" name="files" multiple accept=".pdf,.docx">
+        <input type="submit" value="Upload">
+    </form>
+</body>
+</html>
