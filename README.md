@@ -88,6 +88,9 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
   - `database.py`: Database operations for storing and retrieving data.
   - `models.py`: SQLAlchemy models for job descriptions and CVs.
 - `project/static/`: HTML forms for job and CV uploads.
+  - `upload_cv.html`: Form for CV uploads.
+  - `upload_jobs.html`: Form for job.
+  - `style.css`: Add more styles.
 - `notebooks/`: Jupyter notebooks for experiments.
   - `PDF_DOCX_Extraction.ipynb`: Experiments for PDF/DOCX extraction.
   - `CV_Extraction.ipynb`: Experiments for CV extraction. 

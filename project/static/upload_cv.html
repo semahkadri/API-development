@@ -2,13 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upload CV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload CV - API Development</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-    <h2>Upload PNG CV</h2>
-    <form action="http://127.0.0.1:5000/upload-cv" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".png">
-        <input type="submit" value="Upload">
-    </form>
+    <div class="container">
+        <h2>Upload Your CV</h2>
+        <form action="/upload-cv" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".png" id="cv-file" onchange="showFileFeedback(this)">
+            <input type="submit" value="Upload CV">
+            <div id="file-feedback"></div>
+        </form>
+    </div>
+    <script>
+        function showFileFeedback(input) {
+            const feedback = document.getElementById("file-feedback");
+            if (input.files && input.files.length > 0) {
+                feedback.textContent = `Selected: ${input.files[0].name}`;
+                feedback.style.display = "block";
+            } else {
+                feedback.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>

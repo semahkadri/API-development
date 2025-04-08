@@ -2,13 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upload Job Files</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Jobs - API Development</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-    <h2>Upload up to 20 PDF and 20 DOCX Job Files</h2>
-    <form action="http://127.0.0.1:5000/upload-jobs" method="post" enctype="multipart/form-data">
-        <input type="file" name="files" multiple accept=".pdf,.docx">
-        <input type="submit" value="Upload">
-    </form>
+    <div class="container upload-jobs">
+        <h2>Upload Job Files</h2>
+        <form action="/upload-jobs" method="post" enctype="multipart/form-data">
+            <input type="file" name="files" multiple accept=".pdf,.docx" id="job-files" onchange="showFileFeedback(this)">
+            <input type="submit" value="Upload Jobs">
+            <div id="file-feedback"></div>
+        </form>
+    </div>
+    <script>
+        function showFileFeedback(input) {
+            const feedback = document.getElementById("file-feedback");
+            if (input.files && input.files.length > 0) {
+                const fileCount = input.files.length;
+                feedback.textContent = `Selected ${fileCount} file${fileCount > 1 ? 's' : ''}`;
+                feedback.style.display = "block";
+            } else {
+                feedback.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>

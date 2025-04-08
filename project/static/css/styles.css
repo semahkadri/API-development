@@ -1,0 +1,84 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #fff;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    text-align: center;
+    width: 90%;
+    max-width: 500px; 
+}
+
+h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #ffd700;
+    animation: fadeIn 1s ease-in;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+input[type="file"] {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px dashed #ffd700;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+input[type="file"]:hover {
+    border-color: #00ffcc;
+}
+
+input[type="submit"] {
+    padding: 12px 20px;
+    background: #ffd700;
+    border: none;
+    border-radius: 25px;
+    color: #1e3c72;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    transform: scale(1.05);
+    background: #00ffcc;
+    color: #fff;
+}
+
+#file-feedback {
+    font-size: 1em;
+    color: #00ffcc;
+    margin-top: 10px;
+    display: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.upload-jobs .container {
+    max-width: 600px;
+}
