@@ -1,6 +1,6 @@
 # API Development
 
-API Development project for extracting text from job descriptions (PDF/DOCX) and CVs (PNG) using Flask, with advanced analysis features including LLM semantic analysis.
+API Development project for extracting text from job descriptions (PDF/DOCX) and CVs (PNG) using Flask, with advanced analysis features including LLM semantic analysis and similarity metrics.
 ## Features
 
 - `/upload-jobs`: Extract text from up to 20 PDF and 20 DOCX job description files.
@@ -9,6 +9,7 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
 - `/analyze-jobs`: Analyze job descriptions for word frequency and basic statistics.
 - `/view-analysis`: Serve the word frequency visualization.
 - `/analyze-llm`: Perform semantic analysis on CV data using a pre-trained LLM (Google Gemini) to extract skills, experiences, and qualifications.
+- `/calculate-similarities`: Calculate Cosine Similarity, Levenshtein Distance, and Jaccard Index between a job description and CV.
 
 
 ## Prerequisites
@@ -55,6 +56,7 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
    - Analyze Jobs: `GET http://127.0.0.1:5000/analyze-jobs`
    - View Analysis: `GET http://127.0.0.1:5000/view-analysis`
    - Analyze with LLM: `GET http://127.0.0.1:5000/analyze-llm`
+   - Calculate Similarities: `GET http://127.0.0.1:5000/calculate-similarities`
 
 ## Usage
 
@@ -64,6 +66,7 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
 - **Analyze Jobs**: Send a GET request to `/analyze-jobs` to analyze job descriptions, returning word frequencies and statistics (total documents, total words, unique words, average words per document) along with a visualization path.
 - **View Analysis**: Access `/view-analysis` to view the Plotly bar plot of word frequencies in your browser.
 - **Analyze with LLM**: Send a GET request to `/analyze-llm` to perform semantic analysis on a specific CV using Google Gemini, returning extracted skills, experiences, and qualifications.
+- **Calculate Similarities**: Send a GET request to `/calculate-similarities` to compute Cosine Similarity, Levenshtein Distance, and Jaccard Index between a job description and CV.
 
 ## Project Structure
 
@@ -77,11 +80,12 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
   - `cv_processor.py`: PNG OCR and CV parsing.
   - `data_analyzer.py`: Text analysis and Plotly visualization generation.
   - `llm_analyzer.py`: LLM-based semantic analysis using Google Gemini.
+  - `similarity_calculator.py`: Calculations for Cosine Similarity, Levenshtein Distance, and Jaccard Index.
 - `project/db/`: Database-related modules.
   - `database.py`: Database operations for storing and retrieving data.
   - `models.py`: SQLAlchemy models for job descriptions and CVs.
 - `project/static/`: HTML forms for job and CV uploads.
-- `notebooks/`: Jupyter notebooks for experiments (`PDF_DOCX_Extraction.ipynb`, `CV_Extraction.ipynb`, `Database_Dump.ipynb`, `Data_Analysis.ipynb`, `LLM_Analysis.ipynb`).
+- `notebooks/`: Jupyter notebooks for experiments (`PDF_DOCX_Extraction.ipynb`, `CV_Extraction.ipynb`, `Database_Dump.ipynb`, `Data_Analysis.ipynb`, `LLM_Analysis.ipynb`, `Similarity_Calculation_API`).
 
 ## Requirements
 See `requirements.txt`. Key dependencies include:
@@ -99,3 +103,4 @@ See `requirements.txt`. Key dependencies include:
 - Ensure test files (PDF, DOCX, PNG) contain readable text for accurate extraction.
 - Sensitive data (e.g., database URI) is now stored in a `.env` file, making the codebase safe.
 - The LLM analysis requires a valid Google Gemini API key to be set in the `.env` file as `GEMINI_API_KEY`.
+- The `/calculate-similarities` endpoint requires valid `job_id` and `cv_id` parameters matching database entries.

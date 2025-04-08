@@ -9,6 +9,7 @@ from utils.docx_extractor import extract_docx_text
 from utils.cv_processor import extract_png_text, parse_cv_text
 from utils.data_analyzer import analyze_text, generate_word_frequency_plot
 from utils.llm_analyzer import analyze_with_llm
+from utils.similarity_calculator import calculate_similarities
 from db.database import store_job_description, store_cv, get_all_jobs, get_all_cvs
 import logging
 
@@ -21,7 +22,7 @@ def upload_jobs() -> Dict[str, Union[str, List[Dict[str, str]]]]:
     """Extract text from job description files (PDF/DOCX) and store them in the database.
 
     Returns:
-        JSON response with extracted texts or error message.
+        Dict[str, Union[str, List[Dict[str, str]]]]: JSON response with extracted texts or error message.
     """
     if "files" not in request.files:
         logger.error("No files provided in request")
@@ -92,7 +93,7 @@ def upload_cv() -> Dict[str, Union[str, List[str]]]:
     """Extract qualifications, skills, and experience from a juriste's CV (PNG) and store in the database.
 
     Returns:
-        JSON response with extracted CV data or error message.
+        Dict[str, Union[str, List[str]]]: JSON response with extracted CV data or error message.
     """
     if "file" not in request.files:
         logger.error("No file provided in request")
@@ -148,7 +149,7 @@ def store_data() -> Dict[str, Union[str, List[int], int]]:
     """Store extracted job descriptions and CV data in the PostgreSQL database.
 
     Returns:
-        JSON response with stored IDs or error message.
+        Dict[str, Union[str, List[int], int]]: JSON response with stored IDs or error message.
     """
     logger.debug("Received store-data request")
     data = request.get_json()
@@ -193,7 +194,7 @@ def view_data() -> Dict[str, Union[List[Dict[str, Union[int, str]]], List[Dict[s
     """Retrieve all stored job descriptions and CVs from the PostgreSQL database.
 
     Returns:
-        JSON response with jobs and CVs data or error message.
+        Dict[str, Union[List[Dict[str, Union[int, str]]], List[Dict[str, Union[int, str, List[str]]]]]]: JSON response with jobs and CVs data or error message.
     """
     try:
         jobs = get_all_jobs()
@@ -208,11 +209,8 @@ def view_data() -> Dict[str, Union[List[Dict[str, Union[int, str]]], List[Dict[s
 def analyze_jobs() -> Dict[str, Union[str, List[Tuple[str, int]], str, Dict[str, float]]]:
     """Analyze job descriptions and generate a word frequency visualization.
 
-    Retrieves all job descriptions from the database, analyzes the text for word frequency and basic statistics,
-    and generates a Plotly bar plot saved as HTML.
-
     Returns:
-        JSON response with analysis results, statistics, and path to the visualization file or error message.
+        Dict[str, Union[str, List[Tuple[str, int]], str, Dict[str, float]]]: JSON response with analysis results or error message.
     """
     try:
         jobs = get_all_jobs()
@@ -239,12 +237,10 @@ def analyze_jobs() -> Dict[str, Union[str, List[Tuple[str, int]], str, Dict[str,
 
 @api_bp.route("/analyze-llm", methods=["GET"])
 def analyze_llm() -> Dict[str, Union[str, Dict[str, List[str]]]]:
-    """Analyze a specific CV using a pre-trained LLM to extract skills, experiences, and qualifications.
-
-    Retrieves the text for a specific CV from the database based on filename defined in config.
+    """Analyze a specific CV using a pre-trained LLM.
 
     Returns:
-        JSON response with the filename and extracted data or error message.
+        Dict[str, Union[str, Dict[str, List[str]]]]: JSON response with extracted data or error message.
     """
     try:
         filename = config.LLM_ANALYSIS_FILENAME
@@ -271,12 +267,57 @@ def analyze_llm() -> Dict[str, Union[str, Dict[str, List[str]]]]:
         logger.error(f"Error during LLM analysis: {str(e)}")
         return jsonify({"error": f"Error during LLM analysis: {str(e)}"}), 500
 
+@api_bp.route("/calculate-similarities", methods=["GET"])
+def calculate_similarities_endpoint() -> Dict[str, Union[str, Dict[str, float]]]:
+    """Calculate Cosine Similarity, Levenshtein Distance, and Jaccard Index between a job description and CV.
+
+    Returns:
+        Dict[str, Union[str, Dict[str, float]]]: JSON response with similarity metrics or error message.
+    """
+    try:
+        job_id = request.args.get('job_id', config.JOB_ID_FOR_SIMILARITY)
+        cv_id = request.args.get('cv_id', config.CV_ID_FOR_SIMILARITY)
+
+        if not job_id or not cv_id:
+            logger.error("No job or CV ID provided in query or environment")
+            return jsonify({"error": "Job ID and CV ID must be provided via query parameters (?job_id=X&cv_id=Y) or .env"}), 400
+
+        jobs = get_all_jobs()
+        cvs = get_all_cvs()
+
+        if not jobs or not cvs:
+            logger.error("No job descriptions or CVs found in the database")
+            return jsonify({"error": "No job descriptions or CVs available for comparison"}), 404
+
+        job = next((j for j in jobs if str(j["id"]) == str(job_id)), None)
+        cv = next((c for c in cvs if str(c["id"]) == str(cv_id)), None)
+
+        if not job or not cv:
+            logger.error(f"No job or CV found with IDs: job_id={job_id}, cv_id={cv_id}")
+            return jsonify({"error": f"No job or CV found with IDs: job_id={job_id}, cv_id={cv_id}"}), 404
+
+        logger.debug(f"Raw job text: {job['text'][:200]}...")
+        logger.debug(f"Raw CV text: {cv['text'][:200]}...")
+
+        similarities = calculate_similarities(job["text"], cv["text"])
+
+        logger.info(f"Similarity calculations completed for job_id={job_id} and cv_id={cv_id}")
+        return jsonify({
+            "message": "Similarity metrics calculated",
+            "job_id": job_id,
+            "cv_id": cv_id,
+            "similarities": similarities
+        })
+    except Exception as e:
+        logger.error(f"Error calculating similarities: {str(e)}")
+        return jsonify({"error": f"Error calculating similarities: {str(e)}"}), 500
+
 @api_bp.route("/view-analysis", methods=["GET"])
 def view_analysis() -> str:
     """Serve the word frequency visualization HTML file.
 
     Returns:
-        HTML content of the word frequency plot or JSON error if file not found.
+        str: HTML content or JSON error message.
     """
     try:
         plot_path = os.path.join(config.UPLOAD_FOLDER, "word_frequency.html")
@@ -295,7 +336,7 @@ def serve_upload_jobs_form() -> str:
     """Serve the HTML upload form for job description files.
 
     Returns:
-        HTML content of the job upload form.
+        str: HTML content of the job upload form.
     """
     logger.info("Serving upload jobs form")
     return current_app.send_static_file("upload_jobs.html")
@@ -305,7 +346,7 @@ def serve_upload_cv_form() -> str:
     """Serve the HTML upload form for CV files.
 
     Returns:
-        HTML content of the CV upload form.
+        str: HTML content of the CV upload form.
     """
     logger.info("Serving upload CV form")
     return current_app.send_static_file("upload_cv.html")
