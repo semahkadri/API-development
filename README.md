@@ -70,6 +70,14 @@ API Development project for extracting text from job descriptions (PDF/DOCX) and
 - **Calculate Similarities**: Send a GET request to `/calculate-similarities` to compute Cosine Similarity, Levenshtein Distance, and Jaccard Index between a job description and CV.
 - Translate to English: Send a GET request to `/translate-to-english` to translate the job description specified in `JOB_TEXT_FOR_TRANSLATION` from `.env`.
 
+## Screenshots
+
+### Upload CV Form
+![Upload CV Screenshot](screenshots/upload_cv_screenshot.png)
+
+### Upload Jobs Form
+![Upload Jobs Screenshot](screenshots/upload_jobs_screenshot.png)
+
 ## Project Structure
 
 - `project/app.py`: Main Flask application entry point.
