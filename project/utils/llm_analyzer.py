@@ -1,5 +1,3 @@
-"""Utility module for analyzing text using Google's Gemini API for semantic analysis."""
-
 from typing import Dict, List, Optional
 import google.generativeai as genai
 import logging
@@ -7,7 +5,6 @@ import config
 
 logger = logging.getLogger(__name__)
 
-# Configure Gemini API key
 genai.configure(api_key=config.GEMINI_API_KEY)
 
 def analyze_with_llm(text_data: List[str]) -> Dict[str, List[str]]:
@@ -50,7 +47,6 @@ def analyze_with_llm(text_data: List[str]) -> Dict[str, List[str]]:
                 elif current_section == "qualifications":
                     qualifications.extend(line.split(", "))
 
-        # Clean and deduplicate results
         skills = list(set(skill.strip() for skill in skills if skill.strip()))
         experiences = list(set(exp.strip() for exp in experiences if exp.strip()))
         qualifications = list(set(qual.strip() for qual in qualifications if qual.strip()))

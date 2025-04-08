@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 import os
 from dotenv import load_dotenv
 import nltk
@@ -20,6 +20,9 @@ LLM_ANALYSIS_FILENAME: str = os.getenv("LLM_ANALYSIS_FILENAME")
 JOB_ID_FOR_SIMILARITY: str = os.getenv("JOB_ID_FOR_SIMILARITY")
 CV_ID_FOR_SIMILARITY: str = os.getenv("CV_ID_FOR_SIMILARITY")
 JOB_TEXT_FOR_TRANSLATION: str = os.getenv("JOB_TEXT_FOR_TRANSLATION") 
+QUALIFICATIONS_KEYWORDS: List[str] = os.getenv("QUALIFICATIONS_KEYWORDS", "").split(",")
+SKILLS_KEYWORDS: List[str] = os.getenv("SKILLS_KEYWORDS", "").split(",")
+EXPERIENCE_KEYWORDS: List[str] = os.getenv("EXPERIENCE_KEYWORDS", "").split(",")
 
 def ensure_upload_folder() -> None:
     """Ensure the upload folder exists.
@@ -69,12 +72,15 @@ required_vars = {
     "LLM_ANALYSIS_FILENAME": LLM_ANALYSIS_FILENAME,
     "JOB_ID_FOR_SIMILARITY": JOB_ID_FOR_SIMILARITY,
     "CV_ID_FOR_SIMILARITY": CV_ID_FOR_SIMILARITY,
-    "JOB_TEXT_FOR_TRANSLATION": JOB_TEXT_FOR_TRANSLATION  
+    "JOB_TEXT_FOR_TRANSLATION": JOB_TEXT_FOR_TRANSLATION,
+    "QUALIFICATIONS_KEYWORDS": os.getenv("QUALIFICATIONS_KEYWORDS"),
+    "SKILLS_KEYWORDS": os.getenv("SKILLS_KEYWORDS"),
+    "EXPERIENCE_KEYWORDS": os.getenv("EXPERIENCE_KEYWORDS") 
 }
 
 for var_name, var_value in required_vars.items():
-    if var_value is None:
-        logger.error(f"Required environment variable {var_name} is not defined in .env")
+    if var_value is None or (isinstance(var_value, str) and not var_value.strip()):
+        logger.error(f"Required environment variable {var_name} is not defined or empty in .env")
         raise ValueError(f"{var_name} must be defined in the .env file")
 
 ensure_upload_folder()

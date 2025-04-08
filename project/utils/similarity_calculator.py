@@ -8,7 +8,6 @@ import math
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize NLTK resources
 nltk.download('punkt', quiet=True)
 
 def preprocess_text(text: str) -> List[str]:
@@ -175,23 +174,19 @@ def calculate_similarities(job_text: str, cv_text: str) -> Dict[str, float]:
         logger.debug(f"Input job text: {job_text}")
         logger.debug(f"Input CV text: {cv_text}")
 
-        # Preprocess texts
         job_words = preprocess_text(job_text)
         cv_words = preprocess_text(cv_text)
 
-        # Create word vectors and sets
         job_vector = create_word_vector(job_words)
         cv_vector = create_word_vector(cv_words)
         job_set = set(job_words)
         cv_set = set(cv_words)
 
-        # Log vectors and sets
         logger.debug(f"Job vector: {job_vector}")
         logger.debug(f"CV vector: {cv_vector}")
         logger.debug(f"Job set: {job_set}")
         logger.debug(f"CV set: {cv_set}")
 
-        # Calculate similarities
         cosine_sim = cosine_similarity(job_vector, cv_vector)
         levenshtein_dist = float(levenshtein_distance(job_text, cv_text))
         jaccard_idx = jaccard_index(job_set, cv_set)
