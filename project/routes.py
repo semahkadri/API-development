@@ -10,6 +10,7 @@ from utils.cv_processor import extract_png_text, parse_cv_text
 from utils.data_analyzer import analyze_text, generate_word_frequency_plot
 from utils.llm_analyzer import analyze_with_llm
 from utils.similarity_calculator import calculate_similarities
+from utils.translator import translate_to_english
 from db.database import store_job_description, store_cv, get_all_jobs, get_all_cvs
 import logging
 
@@ -311,6 +312,56 @@ def calculate_similarities_endpoint() -> Dict[str, Union[str, Dict[str, float]]]
     except Exception as e:
         logger.error(f"Error calculating similarities: {str(e)}")
         return jsonify({"error": f"Error calculating similarities: {str(e)}"}), 500
+
+@api_bp.route("/translate-to-english", methods=["GET"])
+def translate_to_english_endpoint() -> Dict[str, Union[str, Optional[str]]]:
+    """Translate a job description to English, prioritizing text from .env or falling back to database by ID.
+
+    Returns:
+        Dict[str, Union[str, Optional[str]]]: JSON response with translated text or error message.
+    """
+    try:
+        job_id = request.args.get("job_id")
+        job_text = config.JOB_TEXT_FOR_TRANSLATION
+
+        if not job_text and not job_id:
+            logger.error("No job text provided in JOB_TEXT_FOR_TRANSLATION (.env) or job_id (query parameter)")
+            return jsonify({"error": "Job text must be provided via JOB_TEXT_FOR_TRANSLATION in .env or job_id via query (?job_id=X)"}), 400
+
+        if not job_text:
+            jobs = get_all_jobs()
+            if not jobs:
+                logger.error("No job descriptions found in the database")
+                return jsonify({"error": "No job descriptions available for translation"}), 404
+
+            job = next((j for j in jobs if str(j["id"]) == str(job_id)), None)
+            if not job:
+                logger.error(f"No job found with ID: {job_id}")
+                return jsonify({"error": f"No job found with ID: {job_id}"}), 404
+
+            job_text = job["text"]
+            logger.debug(f"Using job text from database for job_id={job_id}: {job_text[:200]}...")
+        else:
+            logger.debug(f"Using job text from .env: {job_text[:200]}...")
+
+        translated_text = translate_to_english(job_text)
+
+        if translated_text is None:
+            logger.warning("Translation failed")
+            return jsonify({"error": "Failed to translate job description"}), 500
+
+        response = {
+            "message": "Translation completed",
+            "translated_text": translated_text
+        }
+        if job_id:
+            response["job_id"] = job_id
+
+        logger.info("Translation completed successfully")
+        return jsonify(response)
+    except Exception as e:
+        logger.error(f"Error translating job description: {str(e)}")
+        return jsonify({"error": f"Error translating job description: {str(e)}"}), 500
 
 @api_bp.route("/view-analysis", methods=["GET"])
 def view_analysis() -> str:
