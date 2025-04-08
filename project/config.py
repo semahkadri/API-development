@@ -19,10 +19,12 @@ LLM_ANALYSIS_PROMPT: str = os.getenv("LLM_ANALYSIS_PROMPT")
 LLM_ANALYSIS_FILENAME: str = os.getenv("LLM_ANALYSIS_FILENAME")
 JOB_ID_FOR_SIMILARITY: str = os.getenv("JOB_ID_FOR_SIMILARITY")
 CV_ID_FOR_SIMILARITY: str = os.getenv("CV_ID_FOR_SIMILARITY")
-JOB_TEXT_FOR_TRANSLATION: str = os.getenv("JOB_TEXT_FOR_TRANSLATION") 
+JOB_TEXT_FOR_TRANSLATION: str = os.getenv("JOB_TEXT_FOR_TRANSLATION")
 QUALIFICATIONS_KEYWORDS: List[str] = os.getenv("QUALIFICATIONS_KEYWORDS", "").split(",")
 SKILLS_KEYWORDS: List[str] = os.getenv("SKILLS_KEYWORDS", "").split(",")
 EXPERIENCE_KEYWORDS: List[str] = os.getenv("EXPERIENCE_KEYWORDS", "").split(",")
+JOB_DESCRIPTIONS_TABLE: str = os.getenv("JOB_DESCRIPTIONS_TABLE")  
+CVS_TABLE: str = os.getenv("CVS_TABLE")  
 
 def ensure_upload_folder() -> None:
     """Ensure the upload folder exists.
@@ -75,7 +77,9 @@ required_vars = {
     "JOB_TEXT_FOR_TRANSLATION": JOB_TEXT_FOR_TRANSLATION,
     "QUALIFICATIONS_KEYWORDS": os.getenv("QUALIFICATIONS_KEYWORDS"),
     "SKILLS_KEYWORDS": os.getenv("SKILLS_KEYWORDS"),
-    "EXPERIENCE_KEYWORDS": os.getenv("EXPERIENCE_KEYWORDS") 
+    "EXPERIENCE_KEYWORDS": os.getenv("EXPERIENCE_KEYWORDS"),
+    "JOB_DESCRIPTIONS_TABLE": JOB_DESCRIPTIONS_TABLE, 
+    "CVS_TABLE": CVS_TABLE  
 }
 
 for var_name, var_value in required_vars.items():
